@@ -1,0 +1,79 @@
+name: Continuous Integration Pipeline
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+    - name: Configure Poetry
+      run: |
+        poetry config virtualenvs.create false
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Run black
+      run: |
+        poetry run black --check .
+    - name: Run isort
+      run: |
+        poetry run isort --check-only .
+    - name: Run flake8
+      run: |
+        poetry run flake8 .
+    - name: Run mypy
+      run: |
+        poetry run mypy --strict .
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.8
+        # refer: https://hub.docker.com/_/postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: appdb
+        ports:
+          - 5432:5432
+      localstack:
+        image: localstack/localstack
+        env:
+          SERVICES: s3
+          DEFAULT_REGION: ap-northeast-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        ports:
+          - 4566:4566
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: setup .env
+      run: |
+        cp .env.ci .env
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Run pytest
+      run: |
+        poetry run pytest tests

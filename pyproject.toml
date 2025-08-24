@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "backend-template"
+version = "1.8.3"
+description = "バックエンドテンプレート"
+authors = ["堤 友希 <tsutsumi.develop@gmail.com>"]
+packages = [
+    { include = "app" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.116.1"
+uvicorn = "^0.35.0"
+sqlalchemy = {extras = ["mypy"], version = "^2.0.32"}
+psycopg2-binary = "^2.9.8"
+pydantic = { extras = ["email"], version = "^2.8.2" }
+pre-commit = "^4.2.0"
+alembic = "^1.13.2"
+black = "^25.1.0"
+isort = "^6.0.1"
+flake8 = "^7.1.1"
+mypy = "^1.11.1"
+mypy-extensions = "^1.0.0"
+pydantic-settings = "^2.4.0"
+injector = "^0.22.0"
+pytz = "^2025.2"
+requests = "^2.32.3"
+types-pytz = "^2025.2.0.20250326"
+httpx = "^0.28.1"
+freezegun = "^1.5.1"
+sqlalchemy-utils = "^0.41.2"
+factory-boy = "^3.3.0"
+python-jose = "^3.3.0"
+pyjwt = "^2.9.0"
+types-requests = "^2.32.0.20241016"
+types-python-jose = "^3.3.4.20240106"
+pytest-mock = "^3.14.0"
+boto3 = "^1.36.18"
+boto3-stubs = "^1.36.18"
+mypy-boto3-s3 = "^1.36.15"
+python-docx = "^1.1.2"
+openai = "^1.35.13"
+httpcore = "^1.0.9"
+h11 = "^0.16.0"
+cryptography = "^45.0.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+types-psycopg2 = "^2.9.21.20250121"
+mypy-boto3-cognito-idp = "^1.37.13.post1"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+plugins = [
+    "sqlalchemy.ext.mypy.plugin",
+    "pydantic.mypy"
+]
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"

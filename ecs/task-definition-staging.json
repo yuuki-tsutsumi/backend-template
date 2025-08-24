@@ -1,0 +1,116 @@
+{
+    "family": "task-definition",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "executionRoleArn": "arn:aws:iam::{staging_aws_account_id}:role/ecs-execution-role",
+    "taskRoleArn": "arn:aws:iam::{staging_aws_account_id}:role/ecs-execution-role",
+    "containerDefinitions": [
+        {
+            "name": "app",
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/product-name",
+                    "awslogs-region": "ap-northeast-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:80/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "environment": [
+                {
+                    "name": "CORS_ORIGINS",
+                    "value": "https://www.{staging_domain}.com"
+                },
+                {
+                    "name": "SERVICE_ENV",
+                    "value": "staging"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "ap-northeast-1"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "BASIC_USERNAME",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/basic/username"
+                },
+                {
+                    "name": "BASIC_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/basic/password"
+                },
+                {
+                    "name": "COGNITO_CLIENT_ID",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/cognito/client_id"
+                },
+                {
+                    "name": "COGNITO_DOMAIN",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/cognito/domain"
+                },
+                {
+                    "name": "COGNITO_USER_POOL_ID",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/cognito/user_pool_id"
+                },
+                {
+                    "name": "DB_NAME",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/rds/appdb/database_name"
+                },
+                {
+                    "name": "DB_HOST",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/rds/appdb/endpoint_w"
+                },
+                {
+                    "name": "DB_USER",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/rds/appdb/master_username"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/rds/appdb/master_password"
+                },
+                {
+                    "name": "DB_PORT",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/rds/appdb/port"
+                },
+                {
+                    "name": "OPENAI_API_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:ap-northeast-1:{staging_aws_account_id}:secret:OpenAIAPIKey-hogehoge"
+                },
+                {
+                    "name": "AZURE_OPENAI_API_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:ap-northeast-1:{staging_aws_account_id}:secret:AzureOpenAIAPIKey-fugafuga"
+                },
+                {
+                    "name": "AZURE_OPENAI_ENDPOINT",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/azure/openai/endpoint"
+                },
+                {
+                    "name": "AZURE_OPENAI_MODEL",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/azure/openai/model"
+                },
+                {
+                    "name": "AZURE_OPENAI_API_VERSION",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:{staging_aws_account_id}:parameter/azure/openai/api_version"
+                }
+            ]
+        }
+    ]
+}

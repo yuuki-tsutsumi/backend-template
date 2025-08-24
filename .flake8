@@ -1,0 +1,4 @@
+# NOTE: pyproject.toml で機能しないため、仕方なくこちらに記載。
+[flake8]
+max-line-length = 120
+exclude = .venv,./app/infra/alembic/*

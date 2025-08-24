@@ -1,0 +1,92 @@
+name: Dependabot auto-merge
+
+on: pull_request_target
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+
+    services:
+      # PostgreSQLを起動
+      postgres:
+        image: postgres:16.8
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: appdb
+        ports:
+          - 5432:5432
+      # LocalStackを起動
+      localstack:
+        image: localstack/localstack
+        env:
+          SERVICES: s3
+          DEFAULT_REGION: ap-northeast-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        ports:
+          - 4566:4566
+
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # .envファイルをセットアップ
+      - name: Set up .env
+        run: cp .env.ci .env
+
+      # Pythonをセットアップ
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Poetryをインストール
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # プロジェクトの依存関係をインストール
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      # Dependabotが作成したPRのメタデータを取得
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.1.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # docker, docker-composeのラベルがついている場合を除外
+      - name: Check for docker-related labels
+        id: check-labels
+        run: |
+          if gh pr view "$PR_URL" --json labels -q '.labels[].name' | grep -qE '^(docker|docker_compose)$'; then
+            echo "block=true" >> $GITHUB_OUTPUT
+          else
+            echo "block=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # パッチアップデートかつ上記ラベルがついていない場合に自動マージ
+      - name: Enable auto-merge for patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' && steps.check-labels.outputs.block == 'false'
+
+        run: |
+          # テストが通った場合のみマージする
+          poetry run pytest tests
+
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,71 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "%(asctime)s %(name)s:%(lineno)s %(funcName)s [%(levelname)s]: %(message)s"
+        }
+    },
+    "handlers": {
+        "consoleHandler": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout"
+        },
+        "fileHandler": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "logs/application.log",
+            "when": "MIDNIGHT",
+            "backupCount": 30,
+            "encoding": "utf-8"
+        }
+    },
+    "loggers": {
+        "app.error_handler": {
+            "level": "DEBUG",
+            "handlers": [
+                "consoleHandler",
+                "fileHandler"
+            ],
+            "propagate": false
+        },
+        "tests.conftest": {
+            "level": "DEBUG",
+            "handlers": [
+                "consoleHandler",
+                "fileHandler"
+            ],
+            "propagate": false
+        },
+        "app.infra.repository.user": {
+            "level": "DEBUG",
+            "handlers": [
+                "consoleHandler",
+                "fileHandler"
+            ],
+            "propagate": false
+        },
+        "app.infra.repository.organization": {
+            "level": "DEBUG",
+            "handlers": [
+                "consoleHandler",
+                "fileHandler"
+            ],
+            "propagate": false
+        },
+        "app.infra.repository.user_organization": {
+            "level": "DEBUG",
+            "handlers": [
+                "consoleHandler",
+                "fileHandler"
+            ],
+            "propagate": false
+        }
+    },
+    "root": {
+        "level": "DEBUG"
+    }
+}

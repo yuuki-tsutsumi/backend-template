@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace # 末尾の空白を削除
+      - id: end-of-file-fixer # ファイルが改行で終わり、改行のみであることを確認
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.0
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+  # NOTE: 管理が煩雑になるので、一旦precommitでmypyは使わない
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.11.1
+  #   hooks:
+  #   -   id: mypy
+  #       additional_dependencies:
+  #         - pydantic
+  #         - starlette
+  #         - types-pytz
+  #       args: [--strict, --ignore-missing-imports]
+  #       entry: poetry run mypy
